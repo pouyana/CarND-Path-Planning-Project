@@ -21,7 +21,7 @@ using std::vector;
  **/
 double changeSpeed(double v, double target_v)
 {
-  return v * 0.95 + target_v * 0.05;
+  return v * 0.90 + target_v * 0.10;
 }
 
 /**
@@ -75,27 +75,6 @@ double getCarNewS(double time_step, double target_car_s, double target_car_speed
 }
 
 /**
- * Returns the distance to the car on the left lane
- * 
- * @param double target_car_d
- * @param int lane
- * @param double distance
- * @param double maxRange
- */
-double getLeftLaneCarDistance(double target_car_d, int lane, double distance, double maxRange)
-{
-  distance = handleCarBehind(distance);
-  if (target_car_d < (2 + 4 * (lane - 1) + 2) && target_car_d > (2 + 4 * (lane - 1) - 2))
-  {
-    if (lane > 0 & distance < maxRange)
-    {
-      return distance;
-    }
-  }
-  return maxRange;
-}
-
-/**
  * Calculate the car distance to the given lane
  * 
  * @param double car_d
@@ -129,36 +108,62 @@ int changeLane(
 {
   if ((35 < left_car_distance && left_car_distance < maxRange) || (35 < right_car_distance && right_car_distance < maxRange))
   {
-    double distanceToLane = getCarDistanceToLane(car_d, lane);
-    if (distanceToLane < 0.5)
+    if (right_car_distance == maxRange)
     {
-      if (right_car_distance == maxRange)
+      if (lane != 0)
       {
         lane -= 1;
-        std::cout << "LANE CHANGE TO LEFT" << distanceToLane << std::endl;
-        std::cout << "LANE: " << lane << std::endl;
       }
-      else if (left_car_distance == maxRange)
+    }
+    else if (left_car_distance == maxRange)
+    {
+      if (lane != 2)
       {
         lane += 1;
-        std::cout << "LANE CHANGE TO RIGHT" << distanceToLane << std::endl;
-        std::cout << "LANE: " << lane << std::endl;
       }
-      else if (left_car_distance > right_car_distance)
+    }
+    else if (left_car_distance > right_car_distance)
+    {
+      if (lane != 0)
       {
         lane -= 1;
-        std::cout << "LANE CHANGE TO LEFT" << distanceToLane << std::endl;
-        std::cout << "LANE: " << lane << std::endl;
       }
-      else
+    }
+    else
+    {
+      if (lane != 2)
       {
         lane += 1;
-        std::cout << "LANE CHANGE TO RIGHT" << distanceToLane << std::endl;
-        std::cout << "LANE: " << lane << std::endl;
       }
     }
   }
   return lane;
+}
+
+/**
+ *  Checks if the given car is in the same line as ours
+ * 
+ * @param int lane
+ * @param double target_car_d
+ * 
+ * @return bool
+ */
+bool carInLane(int lane, double target_car_d)
+{
+  return target_car_d < (2 + 4 * lane + 2) && target_car_d > (2 + 4 * lane - 2);
+}
+
+/**
+ * Checks if the given car is the left lane of us
+ * 
+ * @param int lane
+ * @param double target_car_d
+ * 
+ * @return bool
+ */
+bool carInLeftLine(int lane, double target_car_d)
+{
+  return target_car_d < (2 + 4 * (lane - 1) + 2) && target_car_d > (2 + 4 * (lane - 1) - 2);
 }
 
 /**
@@ -173,7 +178,7 @@ int changeLane(
  */
 bool carToClose(double car_s, int lane, double target_car_s, double target_car_d)
 {
-  if (target_car_d < (2 + 4 * lane + 2) && target_car_d > (2 + 4 * lane - 2))
+  if (carInLane(lane, target_car_d) == true)
   {
     if ((target_car_s > car_s) && (target_car_s - car_s < 30))
     {
@@ -181,6 +186,26 @@ bool carToClose(double car_s, int lane, double target_car_s, double target_car_d
     }
   }
   return false;
+}
+
+/**
+ * Returns the distance to the car on the left lane
+ * 
+ * @param double target_car_d
+ * @param int lane
+ * @param double distance
+ * @param double maxRange
+ */
+double getLeftLaneCarDistance(double target_car_d, int lane, double distance, double maxRange)
+{
+  if (carInLeftLine(lane, target_car_d) == true)
+  {
+    if (lane > 0 & distance < maxRange)
+    {
+      return distance;
+    }
+  }
+  return maxRange;
 }
 
 /**
@@ -195,8 +220,7 @@ bool carToClose(double car_s, int lane, double target_car_s, double target_car_d
  */
 double getRightLaneCarDistance(double target_car_d, int lane, double distance, double maxRange)
 {
-  distance = handleCarBehind(distance);
-  if (target_car_d > (2 + 4 * (lane - 1) + 2) || target_car_d < (2 + 4 * (lane - 1) - 2))
+  if (carInLane(lane, target_car_d) == false && carInLeftLine(lane, target_car_d) == false)
   {
     if (lane < 2 && distance < maxRange)
     {
@@ -331,8 +355,9 @@ int main()
               is_to_close = carToClose(car_s, lane, target_car_s, target_car_d);
               target_speed = calculateTargetSpeed(target_car_speed, speed_const);
             }
-            right_car_distance = getRightLaneCarDistance(target_car_d, lane, distance, right_car_distance);
+            distance = handleCarBehind(distance);
             left_car_distance = getLeftLaneCarDistance(target_car_d, lane, distance, left_car_distance);
+            right_car_distance = getRightLaneCarDistance(target_car_d, lane, distance, right_car_distance);
           }
           if (is_to_close)
           {
@@ -347,8 +372,6 @@ int main()
 
           json msgJson;
 
-          // TODO: define a path made up of (x,y) points that the car will visit sequentially every .02 seconds
-          //
           vector<double> ptsx;
           vector<double> ptsy;
           double ref_x = car_x;
@@ -359,7 +382,6 @@ int main()
           {
             double prev_car_x = car_x - cos(car_yaw);
             double prev_car_y = car_y - sin(car_yaw);
-
             ptsx.push_back(prev_car_x);
             ptsx.push_back(car_x);
             ptsy.push_back(prev_car_y);
@@ -390,6 +412,7 @@ int main()
           ptsy.push_back(next_wp1[1]);
           ptsy.push_back(next_wp2[1]);
 
+          // convert the map coordinates to car coordinates
           for (int i = 0; i < ptsx.size(); i += 1)
           {
             double shift_x = ptsx[i] - ref_x;
