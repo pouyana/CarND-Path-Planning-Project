@@ -21,7 +21,7 @@ using std::vector;
  **/
 double changeSpeed(double v, double target_v)
 {
-  return v * 0.90 + target_v * 0.10;
+  return v * 0.91 + target_v * 0.09;
 }
 
 /**
@@ -336,7 +336,8 @@ int main()
           bool is_to_close = false;
           double target_speed = false;
           double max_range = 1000.0;
-          double speed_const = 10.0;
+          double speed_const = 15.0;
+          double max_speed = 49.5;
           double right_car_distance = max_range;
           double left_car_distance = max_range;
           double target_car_speed = 0.0;
@@ -367,7 +368,7 @@ int main()
           }
           else
           {
-            ref_vel = changeSpeed(car_speed, 49.5);
+            ref_vel = changeSpeed(car_speed, max_speed);
           }
 
           json msgJson;

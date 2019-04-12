@@ -17,7 +17,7 @@ Self-Driving Car Engineer Nano degree program.
 
 As described in the help video by Udacity, the two vectors ptsy and ptsx that contains the points are created. (Line 375-276) At the start there are not enough points created for the car to follow. To do so, the car current position and previous position calculated with the help of heading, are added to the list of pints. (Line 379-389)
 
-If there are enough points available in the list of previous points they will be pushed in our point vectors. (Line 394-401) With the help of helper function getXY() points in next 30, 60, 90 meters will be calculated. These will be added to the list of points in every axis. (Line 404-406) 
+If there are enough points available in the list of previous points they will be pushed in our point vectors. (Line 394-401) With the help of helper function getXY() points in next 30, 60, 90 meters will be calculated. These will be added to the list of points in every axis. (Line 404-406).
 
 Still the xy coordinate used here are given in map coordinates, they should be transformed to car coordinates. Spline function needs these points in car coordinates. (Line 417-424) Using the spline function from `spline.h`, the new car coordinates are calculated and converted back to map coordinates. These are added to the list of points for the car to follow as trajectory.(Line 440-462)
 
@@ -42,7 +42,3 @@ This is done by checking for the cars in the same lane as car, if they have lowe
 ### Make a complete loop of the highway 6946m
 
 This works and the longest time I tested the car travelled more than 10 miles.
-
-## Reflection
-
-The help video and the discussions about the `spline` helped me a lot to create an acceptable trajectory with smooth lane changes, smooth transition between hight and low speed (small jerks).
