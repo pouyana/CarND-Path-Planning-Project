@@ -19,6 +19,8 @@ As described in the help video by Udacity, the two vectors ptsy and ptsx that co
 
 If there are enough points available in the list of previous points they will be pushed in our point vectors. (Line 394-401) With the help of helper function getXY() points in next 30, 60, 90 meters will be calculated. These will be added to the list of points in every axis. (Line 404-406).
 
+The lane and velocity are calculated using the state machine that is described afterwards. These are used to calculte the the next 30, 60, 90 meter points. The velocity is also used in the point generation section of the spline function.
+
 Still the xy coordinate used here are given in map coordinates, they should be transformed to car coordinates. Spline function needs these points in car coordinates. (Line 417-424) Using the spline function from `spline.h`, the new car coordinates are calculated and converted back to map coordinates. These are added to the list of points for the car to follow as trajectory.(Line 440-462)
 
 ### Pass the slower cars when possible with lane changes
