@@ -240,6 +240,7 @@ double getRightLaneCarDistance(double target_car_d, int lane, double distance, d
  */
 double calculateTargetSpeed(double target_car_speed, double speed_const)
 {
+  // 2.24 is the conversion factor from mph to m/s
   return target_car_speed * 2.24 - speed_const;
 }
 
