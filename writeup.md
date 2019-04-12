@@ -28,7 +28,7 @@ if the distances in the other lanes are more than 35m to avoid collisions with t
 
 ### Driving under speed limit of 50MPH But always close to that
 
-The default speed is always is lower than 50MPH mainly 49.5. This is changed when the target a head has smaller target speed. This code assumes that all cars abide by this low so the calculate target speed is always less than 50MPH.
+The default speed is always is lower than 50MPH mainly 49.5. This is changed when the target a head has smaller target speed. This code assumes that all cars abide by this law so the calculate target speed is always less than 50MPH. Line 22-25.
 
 ### Dont create accelerations over 10m/s^2 and jerks higher than 10 m/s^3
 
